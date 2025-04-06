@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model AffectedArea {
+  id             Int    @id @default(autoincrement())
+  areaID         String @unique
+  urgencyLevel   Int
+  timeConstraint Int
+
+  requiredResources Resource[]
+  timeToArea        TimeToArea[]
+  assignment        Assignment[]
+}
+
+model Truck {
+  id      Int    @id @default(autoincrement())
+  truckID String @unique
+
+  availableResources Resource[]
+  travelTimeToArea   TimeToArea[]
+  assignment         Assignment[]
+}
+
+model Resource {
+  id           Int     @id @default(autoincrement())
+  name         String
+  quantity     Int
+  areaID       String?
+  truckID      String?
+  assignmentID Int?
+
+  area       AffectedArea? @relation(fields: [areaID], references: [areaID])
+  truck      Truck?        @relation(fields: [truckID], references: [truckID])
+  assignment Assignment?   @relation(fields: [assignmentID], references: [id])
+}
+
+model TimeToArea {
+  id         Int    @id @default(autoincrement())
+  truckID    String
+  areaID     String
+  travelTime Int
+
+  area  AffectedArea @relation(fields: [areaID], references: [areaID])
+  truck Truck        @relation(fields: [truckID], references: [truckID])
+}
+
+model Assignment {
+  id                 Int        @id @default(autoincrement())
+  truckID            String
+  areaID             String
+  resourcesDelivered Resource[]
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  deletedAt          DateTime?
+
+  area  AffectedArea @relation(fields: [areaID], references: [areaID])
+  truck Truck        @relation(fields: [truckID], references: [truckID])
+}
