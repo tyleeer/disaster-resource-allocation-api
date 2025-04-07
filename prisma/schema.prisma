@@ -19,31 +19,18 @@ model AffectedArea {
   urgencyLevel   Int
   timeConstraint Int
 
-  requiredResources Resource[]
+  requiredResources String
   timeToArea        TimeToArea[]
   assignment        Assignment[]
 }
 
 model Truck {
-  id      Int    @id @default(autoincrement())
-  truckID String @unique
+  id                 Int    @id @default(autoincrement())
+  truckID            String @unique
+  availableResources String
 
-  availableResources Resource[]
-  travelTimeToArea   TimeToArea[]
-  assignment         Assignment[]
-}
-
-model Resource {
-  id           Int     @id @default(autoincrement())
-  name         String
-  quantity     Int
-  areaID       String?
-  truckID      String?
-  assignmentID Int?
-
-  area       AffectedArea? @relation(fields: [areaID], references: [areaID])
-  truck      Truck?        @relation(fields: [truckID], references: [truckID])
-  assignment Assignment?   @relation(fields: [assignmentID], references: [id])
+  travelTimeToArea TimeToArea[]
+  assignment       Assignment[]
 }
 
 model TimeToArea {
@@ -57,12 +44,12 @@ model TimeToArea {
 }
 
 model Assignment {
-  id                 Int        @id @default(autoincrement())
+  id                 Int       @id @default(autoincrement())
   truckID            String
   areaID             String
-  resourcesDelivered Resource[]
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
+  resourcesDelivered String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
 
   area  AffectedArea @relation(fields: [areaID], references: [areaID])
