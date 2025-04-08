@@ -20,7 +20,6 @@ model AffectedArea {
   timeConstraint Int
 
   requiredResources String
-  timeToArea        TimeToArea[]
   assignment        Assignment[]
 }
 
@@ -28,19 +27,9 @@ model Truck {
   id                 Int    @id @default(autoincrement())
   truckID            String @unique
   availableResources String
+  travelTimeToArea   String
 
-  travelTimeToArea TimeToArea[]
-  assignment       Assignment[]
-}
-
-model TimeToArea {
-  id         Int    @id @default(autoincrement())
-  truckID    String
-  areaID     String
-  travelTime Int
-
-  area  AffectedArea @relation(fields: [areaID], references: [areaID])
-  truck Truck        @relation(fields: [truckID], references: [truckID])
+  assignment Assignment[]
 }
 
 model Assignment {
