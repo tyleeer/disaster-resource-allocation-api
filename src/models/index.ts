@@ -1,3 +1,3 @@
 import { AffectedArea } from "@prisma/client";
 
-export type AffectedAreaForCreate = AffectedArea & { requiredResources: { [key: string]: number } };
+export type AffectedAreaDTO = AffectedArea & { requiredResources: { [key: string]: number } };

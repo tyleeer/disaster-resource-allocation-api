@@ -1,21 +1,33 @@
 import { AffectedArea } from '@prisma/client';
 import * as areaError from "../errors/areaError";
 import * as areaRepo from "../repositories/areaRepository";
-import { AffectedAreaForCreate } from '../models';
+import { AffectedAreaDTO } from '../models';
 
-export const getAllAreas = () => {
-    return areaRepo.getAllAreas();
+export const getAllAreas = async (): Promise<AffectedAreaDTO[]> => {
+    const areas = await areaRepo.getAllAreas();
+    if (!areas || areas.length === 0) {
+        throw areaError.AreaNotFoundError("Area Not found");
+    }
+    return areas.map((area) => {
+        return {
+            ...area,
+            requiredResources: JSON.parse(area.requiredResources)
+        }
+    });
 }
 
-export const getAreaById = async (areaID: string) => {
+export const getAreaById = async (areaID: string): Promise<AffectedAreaDTO> => {
     const area = await areaRepo.getAreaByAreaID(areaID);
     if (!area) {
-        throw areaError.AreaNotFoundError(`Area with areaID "${areaID}" is not found`);
+        throw areaError.AreaNotFoundError(`Area with areaID '${areaID}' is not found`);
     }
-    return area;
+    return {
+        ...area,
+        requiredResources: JSON.parse(area.requiredResources)
+    };
 }
 
-export const createAreas = async (areaData: AffectedAreaForCreate[]) => {
+export const createAreas = async (areaData: AffectedAreaDTO[]) => {
     const existingAreas: AffectedArea[] = [];
     const nonExistingArea = await Promise.all(areaData.map(async (area) => {
         const existingArea = await areaRepo.getAreaByAreaID(area.areaID);
@@ -42,14 +54,14 @@ export const createAreas = async (areaData: AffectedAreaForCreate[]) => {
 
     const createdAreas = await areaRepo.createAreas(validatedAreaForCreate);
 
-    const errorMessage = existingAreas.length > 0 ?
+    const error = existingAreas.length > 0 ?
         `${existingAreas.map(area => area.areaID).join(", ")} areas are already exist`
         : "No error found";
 
     return {
         message: {
-            error: errorMessage,
             success: `${createdAreas.count} areas created successfully!`,
+            error,
         }
     }
 }
