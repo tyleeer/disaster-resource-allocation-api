@@ -5,9 +5,6 @@ import { AffectedAreaDTO } from '../models';
 
 export const getAllAreas = async (): Promise<AffectedAreaDTO[]> => {
     const areas = await areaRepo.getAllAreas();
-    if (!areas || areas.length === 0) {
-        throw areaError.AreaNotFoundError("Area Not found");
-    }
     return areas.map((area) => {
         return {
             ...area,

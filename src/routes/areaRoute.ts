@@ -61,10 +61,7 @@ areaRouter.post("/", async (req, res) => {
             return;
         }
 
-        res.status(500).json({
-            name: errorInfo.name,
-            message: errorInfo.message
-        });
+        res.status(500).json({ error: "Failed to create areas" });
     }
 });
 
