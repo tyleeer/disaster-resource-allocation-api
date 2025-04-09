@@ -14,13 +14,13 @@ datasource db {
 }
 
 model AffectedArea {
-  id             Int    @id @default(autoincrement())
-  areaID         String @unique
-  urgencyLevel   Int
-  timeConstraint Int
-
+  id                Int    @id @default(autoincrement())
+  areaID            String @unique
+  urgencyLevel      Int
+  timeConstraint    Int
   requiredResources String
-  assignment        Assignment[]
+
+  assignmentDetails AssignmentDetails[]
 }
 
 model Truck {
@@ -29,18 +29,26 @@ model Truck {
   availableResources String
   travelTimeToArea   String
 
-  assignment Assignment[]
+  assignmentDetails AssignmentDetails[]
 }
 
 model Assignment {
-  id                 Int       @id @default(autoincrement())
-  truckID            String
-  areaID             String
-  resourcesDelivered String
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  deletedAt          DateTime?
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  area  AffectedArea @relation(fields: [areaID], references: [areaID])
-  truck Truck        @relation(fields: [truckID], references: [truckID])
+  assignmentDetails AssignmentDetails[]
+}
+
+model AssignmentDetails {
+  id                 Int    @id @default(autoincrement())
+  assignmentID       Int
+  areaID             String
+  truckID            String
+  resourcesDelivered String
+
+  assignment Assignment   @relation(fields: [assignmentID], references: [id])
+  area       AffectedArea @relation(fields: [areaID], references: [areaID])
+  truck      Truck        @relation(fields: [truckID], references: [truckID])
 }
