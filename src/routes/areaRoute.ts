@@ -10,14 +10,6 @@ areaRouter.get("/", async (req, res) => {
         res.status(200).json(areas);
     } catch (error) {
         console.error("Error fetching areas:", error);
-        const errorInfo = error as Error;
-        if (errorInfo.name === "AreaNotFoundError") {
-            res.status(404).json({
-                name: errorInfo.name,
-                message: errorInfo.message
-            });
-            return;
-        }
         res.status(500).json({ error: "Failed to request areas" });
     }
 });

@@ -10,14 +10,6 @@ truckRouter.get("/", async (req, res) => {
         res.status(200).json(trucks);
     } catch (error) {
         console.error("Error fetching trucks:", error);
-        const errorInfo = error as Error;
-        if (errorInfo.name === "TruckNotFoundError") {
-            res.status(404).json({
-                name: errorInfo.name,
-                message: errorInfo.message
-            });
-            return;
-        }
         res.status(500).json({ error: "Failed to request trucks" });
     }
 });
