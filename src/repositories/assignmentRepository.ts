@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { CreatProcessedAssignment } from '../models';
 
 const prisma = new PrismaClient();
 
@@ -13,4 +14,18 @@ export const getLastProcessedAssignments = async () => {
         },
     });
     return lastProcessedAssignment;
+}
+
+export const createAssignments = async (processedAssignments: CreatProcessedAssignment[]) => {
+    const assignment = await prisma.assignment.create({
+        data: {
+            assignmentDetails: {
+                create: processedAssignments
+            }
+        }
+    });
+
+    return prisma.assignmentDetails.findMany({
+        where: { assignmentID: assignment.id }
+    })
 }
