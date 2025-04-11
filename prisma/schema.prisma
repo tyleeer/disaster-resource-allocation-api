@@ -13,12 +13,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ResourceDelivertyStatus {
+  PENDING
+  COMPLETED
+}
+
 model AffectedArea {
-  id                Int    @id @default(autoincrement())
-  areaID            String @unique
-  urgencyLevel      Int
-  timeConstraint    Int
-  requiredResources String
+  id                     Int                     @id @default(autoincrement())
+  areaID                 String                  @unique
+  urgencyLevel           Int
+  timeConstraint         Int
+  requiredResources      String
+  resourceDeliveryStatus ResourceDelivertyStatus @default(PENDING)
 
   assignmentDetails AssignmentDetails[]
 }
