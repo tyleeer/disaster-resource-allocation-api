@@ -59,9 +59,21 @@ export const createTrucks = async (truckData: TruckDTO[]) => {
         : "No error found";
 
     return {
-        message: {
-            success: `${createdTrucks.count} trucks created successfully!`,
-            error,
-        }
+        message: `${createdTrucks.count} trucks created successfully`,
+        error,
     }
+}
+
+export const updateTruck = async (truckID: string, truckData: Partial<Truck>) => {
+    const existingTruck = await getTruckById(truckID);
+    if (!existingTruck) {
+        throw truckError.TruckNotFoundError(`Truck with truckID '${truckID}' is not found`);
+    }
+
+    const updatedTruck = await truckRepo.updateTruck(truckID, truckData);
+    return {
+        ...updatedTruck,
+        availableResources: JSON.parse(updatedTruck.availableResources),
+        travelTimeToArea: JSON.parse(updatedTruck.travelTimeToArea)
+    };
 }

@@ -18,3 +18,10 @@ export const createTrucks = (truckData: Truck[]) => {
         skipDuplicates: true,
     });
 }
+
+export const updateTruck = (truckID: string, truckData: Partial<Truck>) => {
+    return prisma.truck.update({
+        where: { truckID },
+        data: truckData,
+    });
+}

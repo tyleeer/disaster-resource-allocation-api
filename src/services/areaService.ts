@@ -56,9 +56,20 @@ export const createAreas = async (areaData: AffectedAreaDTO[]) => {
         : "No error found";
 
     return {
-        message: {
-            success: `${createdAreas.count} areas created successfully!`,
-            error,
-        }
+        message: `${createdAreas.count} areas created successfully`,
+        error,
     }
+}
+
+export const updateArea = async (areaID: string, areaData: Partial<AffectedArea>) => {
+    const existingArea = await getAreaById(areaID);
+    if (!existingArea) {
+        throw areaError.AreaNotFoundError(`Area with areaID '${areaID}' is not found`);
+    }
+
+    const updatedArea = await areaRepo.updateArea(areaID, areaData);
+    return {
+        ...updatedArea,
+        requiredResources: JSON.parse(updatedArea.requiredResources)
+    };
 }
