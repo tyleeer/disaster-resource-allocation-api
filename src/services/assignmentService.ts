@@ -22,10 +22,7 @@ export const getLastProcessedAssignments = async (): Promise<AssignmentDetailsDT
 }
 
 export const processAssignments = async () => {
-    const [areas, trucks] = await Promise.all([
-        getAllAreas(),
-        getAllTrucks()
-    ]);
+    const [areas, trucks] = await Promise.all([getAllAreas(), getAllTrucks()]);
 
     const processedAssignments: ProcessedAssignments = {
         message: "No assignment created",
@@ -71,6 +68,8 @@ const resourcesMatching = (areas: AffectedAreaDTO[], trucks: TruckDTO[]): Matchi
         unassignedAreas: []
     };
 
+    const availableTrucks = [...trucks];
+
     areas.forEach((area) => {
         if (area.resourceDeliveryStatus === ResourceDelivertyStatus.COMPLETED) return;
 
@@ -86,14 +85,13 @@ const resourcesMatching = (areas: AffectedAreaDTO[], trucks: TruckDTO[]): Matchi
         });
 
         if (fristMatchedTruck) {
-            const [assignedTruck] = trucks.splice(trucks.indexOf(fristMatchedTruck), 1);
-            const remainingTruckResources = calculateRemainingResources(assignedTruck.availableResources, area.requiredResources);
-            const remainingAreaResources = calculateRemainingResources(area.requiredResources, assignedTruck.availableResources);
+            const remainingTruckResources = calculateRemainingResources(fristMatchedTruck.availableResources, area.requiredResources);
+            const remainingAreaResources = calculateRemainingResources(area.requiredResources, fristMatchedTruck.availableResources);
 
             matchingRecords.remainingResources.push({
                 areaID: area.areaID,
                 remainingAreaResources,
-                truckID: assignedTruck.truckID,
+                truckID: fristMatchedTruck.truckID,
                 remainingTruckResources,
             })
             matchingRecords.assignments.push({
@@ -101,6 +99,8 @@ const resourcesMatching = (areas: AffectedAreaDTO[], trucks: TruckDTO[]): Matchi
                 truckID: fristMatchedTruck.truckID,
                 resourcesDelivered: area.requiredResources
             });
+
+            availableTrucks.splice(availableTrucks.indexOf(fristMatchedTruck), 1);
         } else {
             matchingRecords.unassignedAreas.push(area.areaID);
         }
