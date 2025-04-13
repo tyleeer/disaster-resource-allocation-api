@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getLastProcessedAssignments, processAssignments } from "../services/assignmentService";
+import { deleteCachedAssignments, getLastProcessedAssignments, processAssignments } from "../services/assignmentService";
 
 const assignmentRouter = Router();
 
@@ -29,6 +29,22 @@ assignmentRouter.post("/", async (req, res) => {
         }
 
         res.status(500).json({ error: "Failed to process assignments" });
+    }
+});
+
+assignmentRouter.delete("/", async (req, res) => {
+    try {
+        await deleteCachedAssignments();
+        res.status(200).json({ message: "Assignments cache deleted successfully" });
+    }
+    catch (error) {
+        const errorInfo = error as Error;
+        if (errorInfo.name === "NoCachedAssignmentError") {
+            res.status(404).json({ message: "No cached assignment data found to delete" });
+            return;
+        }
+        console.error("Error deleting assignments cache:", error);
+        res.status(500).json({ error: "Failed to delete assignments cache" });
     }
 });
 

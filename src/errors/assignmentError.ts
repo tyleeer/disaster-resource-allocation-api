@@ -15,3 +15,9 @@ export const AssignmentNotFoundError = (message: string) => {
     error.name = "AssignmentNotFoundError";
     return error;
 }
+
+export const NoCachedAssignmentError = (message: string) => {
+    const error = new Error(message);
+    error.name = "NoCachedAssignmentError";
+    return error;
+} 

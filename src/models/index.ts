@@ -38,3 +38,8 @@ export type ProcessedAssignments = {
     error: string,
     assignments: ProcessedAssignment[],
 }
+
+export type CachedAssignments = {
+    hasCacheData: boolean,
+    assignments: ProcessedAssignment[]
+}

@@ -1,24 +1,35 @@
 import * as assignmentError from "../errors/assignmentError";
 import * as assignmentRepo from "../repositories/assignmentRepository";
-import { AssignmentDetailsDTO, TruckDTO, AffectedAreaDTO, MatchingRecords, CreatProcessedAssignment, ProcessedAssignment, RemainingResources, ProcessedAssignments } from '../models';
+import { AssignmentDetailsDTO, TruckDTO, AffectedAreaDTO, MatchingRecords, CreatProcessedAssignment, ProcessedAssignment, RemainingResources, ProcessedAssignments, CachedAssignments } from '../models';
 import { getAllAreas, updateArea } from './areaService';
 import { getAllTrucks, updateTruck } from './truckService';
 import { calculateRemainingResources } from "../utils/assignmentHelpler";
+import { setCachedAssignment, deleteCachedAssignment, getCachedAssignments } from "./redisService";
 import { ResourceDelivertyStatus } from "@prisma/client";
+import initializeRedisClient from "../db/redisClient";
 
-export const getLastProcessedAssignments = async (): Promise<AssignmentDetailsDTO[]> => {
+export const getLastProcessedAssignments = async (): Promise<ProcessedAssignment[]> => {
+    const redisClient = await initializeRedisClient();
+    const cache = await getCachedAssignments(redisClient, "assignments:lastProcessed") as CachedAssignments;
+    if (cache.hasCacheData) {
+        console.log("Assignments data retrieved from cache");
+        return cache.assignments;
+    }
     const lastProcessedAssignments = await assignmentRepo.getLastProcessedAssignments();
     if (!lastProcessedAssignments) {
         return [] as AssignmentDetailsDTO[];
     }
 
-    return lastProcessedAssignments.assignmentDetails.map((assignmentDetail) => {
+    const assignments = lastProcessedAssignments.assignmentDetails.map((assignmentDetail) => {
         return {
             areaID: assignmentDetail.areaID,
             truckID: assignmentDetail.truckID,
             resourcesDelivered: JSON.parse(assignmentDetail.resourcesDelivered)
         }
     });
+
+    await setCachedAssignment(redisClient, "assignments:lastProcessed", assignments);
+    return assignments;
 }
 
 export const processAssignments = async () => {
@@ -51,13 +62,28 @@ export const processAssignments = async () => {
             }
         });
 
-        await updateResources(remainingResources);
+        const redisClient = await initializeRedisClient();
+        await Promise.all([
+            updateResources(remainingResources),
+            setCachedAssignment(redisClient, "assignments:lastProcessed", processedAssignments.assignments)
+        ]);
     }
 
     return {
         message: processedAssignments.message,
         error: processedAssignments.error,
         assignments: processedAssignments.assignments,
+    }
+}
+
+export const deleteCachedAssignments = async () => {
+    const redisClient = await initializeRedisClient();
+    const cache = await getCachedAssignments(redisClient, "assignments:lastProcessed");
+    if (cache.hasCacheData) {
+        await deleteCachedAssignment(redisClient, "assignments:lastProcessed");
+    } else {
+        console.log("No cached assignment data found to delete");
+        throw assignmentError.NoCachedAssignmentError("No cached assignment data found to delete");
     }
 }
 
