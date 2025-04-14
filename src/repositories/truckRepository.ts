@@ -15,7 +15,7 @@ export const getTruckByTruckID = (truckID: string) => {
 export const createTrucks = (truckData: Truck[]) => {
     return prisma.truck.createMany({
         data: [...truckData],
-        skipDuplicates: true,
+        // skipDuplicates: true,
     });
 }
 

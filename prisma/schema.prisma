@@ -14,23 +14,15 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model ResourceDeliveryStatus {
-  id    Int    @id @default(autoincrement())
-  value String @unique
-
-  affectedAreas AffectedArea[]
-}
-
 model AffectedArea {
-  id                 Int    @id @default(autoincrement())
-  areaID             String @unique
-  urgencyLevel       Int
-  timeConstraint     Int
-  requiredResources  String
-  resourceDeliveryID String
+  id                     Int    @id @default(autoincrement())
+  areaID                 String @unique
+  urgencyLevel           Int
+  timeConstraint         Int
+  requiredResources      String
+  resourceDeliveryStatus Int    @default(0)
 
-  assignmentDetails      AssignmentDetails[]
-  resourceDeliveryStatus ResourceDeliveryStatus @relation(fields: [resourceDeliveryID], references: [value])
+  assignmentDetails AssignmentDetails[]
 }
 
 model Truck {

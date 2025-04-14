@@ -19,7 +19,7 @@ export const getAreaByAreaID = (areaID: string) => {
 export const createAreas = (areaData: AffectedArea[]) => {
     return prisma.affectedArea.createMany({
         data: [...areaData],
-        skipDuplicates: true,
+        // skipDuplicates: true,
     });
 }
 

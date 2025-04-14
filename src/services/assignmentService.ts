@@ -1,11 +1,10 @@
 import * as assignmentError from "../errors/assignmentError";
 import * as assignmentRepo from "../repositories/assignmentRepository";
-import { AssignmentDetailsDTO, TruckDTO, AffectedAreaDTO, MatchingRecords, CreatProcessedAssignment, ProcessedAssignment, RemainingResources, ProcessedAssignments, CachedAssignments } from '../models';
+import { AssignmentDetailsDTO, TruckDTO, AffectedAreaDTO, MatchingRecords, CreatProcessedAssignment, ProcessedAssignment, RemainingResources, ProcessedAssignments, CachedAssignments, ResourceDeliveryStatus } from '../models';
 import { getAllAreas, updateArea } from './areaService';
 import { getAllTrucks, updateTruck } from './truckService';
 import { calculateRemainingResources } from "../utils/assignmentHelpler";
 import { setCachedAssignment, deleteCachedAssignment, getCachedAssignments } from "./redisService";
-import { ResourceDelivertyStatus } from "@prisma/client";
 import initializeRedisClient from "../db/redisClient";
 
 export const getLastProcessedAssignments = async (): Promise<ProcessedAssignment[]> => {
@@ -97,7 +96,7 @@ const resourcesMatching = (areas: AffectedAreaDTO[], trucks: TruckDTO[]): Matchi
     const availableTrucks = [...trucks];
 
     areas.forEach((area) => {
-        if (area.resourceDeliveryStatus === ResourceDelivertyStatus.COMPLETED) return;
+        if (area.resourceDeliveryStatus === ResourceDeliveryStatus.COMPLETED) return;
 
         const [fristMatchedTruck] = trucks.filter((truck) => {
             return Object.keys(area.requiredResources).every((key) => {
@@ -150,7 +149,7 @@ const updateResources = async (remainingResources: RemainingResources[]) => {
     const updateAreas = remainingResources.map((remainingResource) => {
         return updateArea(remainingResource.areaID, {
             requiredResources: JSON.stringify(remainingResource.remainingAreaResources),
-            resourceDeliveryStatus: ResourceDelivertyStatus.COMPLETED
+            resourceDeliveryStatus: ResourceDeliveryStatus.COMPLETED
         });
     });
 

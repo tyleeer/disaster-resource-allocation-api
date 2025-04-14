@@ -43,3 +43,8 @@ export type CachedAssignments = {
     hasCacheData: boolean,
     assignments: ProcessedAssignment[]
 }
+
+export enum ResourceDeliveryStatus {
+    PENDING = 0,
+    COMPLETED = 1
+}
