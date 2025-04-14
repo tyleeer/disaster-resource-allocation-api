@@ -5,7 +5,12 @@ let client: RedisClientType | null;
 const initializeRedisClient = async () => {
   if (!client) {
     client = createClient({
-      url: process.env.REDIS_URL as string,
+      username: process.env.REDIS_USERNAME,
+      password: process.env.REDIS_PASSWORD,
+      socket: {
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT)
+      }
     });
 
     client.on("error", (err) => {
