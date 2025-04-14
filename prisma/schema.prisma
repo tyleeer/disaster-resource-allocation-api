@@ -9,24 +9,28 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "sqlserver"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-enum ResourceDelivertyStatus {
-  PENDING
-  COMPLETED
+model ResourceDeliveryStatus {
+  id    Int    @id @default(autoincrement())
+  value String @unique
+
+  affectedAreas AffectedArea[]
 }
 
 model AffectedArea {
-  id                     Int                     @id @default(autoincrement())
-  areaID                 String                  @unique
-  urgencyLevel           Int
-  timeConstraint         Int
-  requiredResources      String
-  resourceDeliveryStatus ResourceDelivertyStatus @default(PENDING)
+  id                 Int    @id @default(autoincrement())
+  areaID             String @unique
+  urgencyLevel       Int
+  timeConstraint     Int
+  requiredResources  String
+  resourceDeliveryID String
 
-  assignmentDetails AssignmentDetails[]
+  assignmentDetails      AssignmentDetails[]
+  resourceDeliveryStatus ResourceDeliveryStatus @relation(fields: [resourceDeliveryID], references: [value])
 }
 
 model Truck {
